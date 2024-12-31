@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git 'https://github.com/Phoenixuu/Deploy_continous.git'
+            }
+        }
+        
+        stage('Setup Python Environment') {
+            steps {
+                script {
+                    sh 'python3 -m venv venv'
+                    sh 'source venv/bin/activate'
+                    sh 'pip install -r requirements.txt'
+                }
+            }
+        }
+
+        stage('Train Model') {
+            steps {
+                script {
+                    sh 'python randomForest.py'
+                }
+            }
+        }
+
+        stage('Test Model') {
+            steps {
+                script {
+                    // Kiểm thử mô hình, ví dụ kiểm tra độ lỗi
+                    sh 'python -m unittest test_model.py'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Model training completed successfully!'
+        }
+        failure {
+            echo 'Model training failed.'
+        }
+    }
+}
+
